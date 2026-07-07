@@ -1,0 +1,79 @@
+# invites.blog production stack.
+# Safe/additive on a shared host: unique container names, an internal network for Postgres (NO host
+# port bindings), and the app + web containers also join the external `proxy` network so the shared
+# Caddy reverse-proxy reaches them by name. Build contexts are sibling repos cloned next to this one.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: invites-blog-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-invites_blog}
+      POSTGRES_USER: ${POSTGRES_USER:-invites}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - invites-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-invites} -d $${POSTGRES_DB:-invites_blog}"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    networks: [invites-internal]
+
+  api:
+    build:
+      context: ../invites-blog-backend
+      dockerfile: InvitesBlog.Api/Dockerfile
+    container_name: invites-blog-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=${POSTGRES_DB:-invites_blog};Username=${POSTGRES_USER:-invites};Password=${POSTGRES_PASSWORD}
+      Storage__Provider: Local
+      # Relative asset base → template packageUrls resolve same-origin on whatever host serves the app.
+      Urls__AssetsBase: /assets
+      Urls__InviterBase: https://invites.blog
+      Urls__InviteeBase: https://me.invites.blog
+      Urls__ApiBase: https://invites.blog
+      Jwt__Issuer: invites.blog
+      Jwt__Audience: invites.blog
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?JWT_SIGNING_KEY is required}
+      Admin__Email: ${ADMIN_EMAIL:-admin@invites.blog}
+      Admin__Password: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
+      Payments__Provider: Fake
+      Payments__WebhookSecret: ${PAYMENTS_WEBHOOK_SECRET:-fake-webhook-secret}
+    volumes:
+      - invites-assets-data:/app/wwwroot/assets
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks: [invites-internal, proxy]
+
+  web-inviter:
+    build:
+      context: ../invites-blog-frontend
+      args:
+        APP: web-inviter
+    container_name: invites-blog-web-inviter
+    restart: unless-stopped
+    networks: [proxy]
+
+  web-invitee:
+    build:
+      context: ../invites-blog-frontend
+      args:
+        APP: web-invitee
+    container_name: invites-blog-web-invitee
+    restart: unless-stopped
+    networks: [proxy]
+
+networks:
+  proxy:
+    external: true
+  invites-internal:
+    driver: bridge
+
+volumes:
+  invites-postgres-data:
+  invites-assets-data:

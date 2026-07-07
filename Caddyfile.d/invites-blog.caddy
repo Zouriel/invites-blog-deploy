@@ -1,0 +1,52 @@
+# invites.blog routes for the shared Caddy proxy.
+# Copy this file into /opt/stacks/proxy/Caddyfile.d/ and run:  docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+# Each site proxies /api/* and /assets/* to the API (same-origin, no CORS) and everything else to the SPA.
+
+invites.blog {
+	handle /api/* {
+		reverse_proxy invites-blog-api:8080
+	}
+	handle /assets/* {
+		reverse_proxy invites-blog-api:8080
+	}
+	handle {
+		reverse_proxy invites-blog-web-inviter:80
+	}
+}
+
+me.invites.blog {
+	handle /api/* {
+		reverse_proxy invites-blog-api:8080
+	}
+	handle /assets/* {
+		reverse_proxy invites-blog-api:8080
+	}
+	handle {
+		reverse_proxy invites-blog-web-invitee:80
+	}
+}
+
+# --- Immediate-access fallback (works without any DNS change) ---
+invites.164.68.102.231.sslip.io {
+	handle /api/* {
+		reverse_proxy invites-blog-api:8080
+	}
+	handle /assets/* {
+		reverse_proxy invites-blog-api:8080
+	}
+	handle {
+		reverse_proxy invites-blog-web-inviter:80
+	}
+}
+
+me-invites.164.68.102.231.sslip.io {
+	handle /api/* {
+		reverse_proxy invites-blog-api:8080
+	}
+	handle /assets/* {
+		reverse_proxy invites-blog-api:8080
+	}
+	handle {
+		reverse_proxy invites-blog-web-invitee:80
+	}
+}
