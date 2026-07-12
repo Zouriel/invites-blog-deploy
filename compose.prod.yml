@@ -49,6 +49,11 @@ services:
       Email__From_System: ${EMAIL_FROM_SYSTEM:-invites.blog <no-reply@mail.invites.blog>}
       Email__WebhookSecret: ${RESEND_WEBHOOK_SECRET:-}
       Otp__Channels: ${OTP_CHANNELS:-Email}
+      # Viber delivery (Infobip) — leave INFOBIP_API_KEY empty to keep the channel log-only (no real sends).
+      Infobip__BaseUrl: ${INFOBIP_BASE_URL:-}
+      Infobip__ApiKey: ${INFOBIP_API_KEY:-}
+      Infobip__ViberSender: ${INFOBIP_VIBER_SENDER:-}
+      Infobip__WebhookToken: ${INFOBIP_WEBHOOK_TOKEN:-}
     volumes:
       - invites-assets-data:/app/wwwroot/assets
     depends_on:
