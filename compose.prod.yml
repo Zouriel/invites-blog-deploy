@@ -60,6 +60,12 @@ services:
       Infobip__ApiKey: ${INFOBIP_API_KEY:-}
       Infobip__ViberSender: ${INFOBIP_VIBER_SENDER:-}
       Infobip__WebhookToken: ${INFOBIP_WEBHOOK_TOKEN:-}
+      # Google / Microsoft sign-in. Each provider stays hidden in the UI until its client id is set,
+      # so leaving these empty keeps email + password as the only way in. Browser-side implicit flow
+      # (response_type=id_token) — there is no client secret to keep here.
+      OAuth__Google__ClientId: ${OAUTH_GOOGLE_CLIENT_ID:-}
+      OAuth__Microsoft__ClientId: ${OAUTH_MICROSOFT_CLIENT_ID:-}
+      OAuth__Microsoft__Tenant: ${OAUTH_MICROSOFT_TENANT:-common}
     volumes:
       - invites-assets-data:/app/wwwroot/assets
     depends_on:
