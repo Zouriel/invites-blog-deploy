@@ -122,6 +122,8 @@ services:
       context: ../invites-blog-frontend
       args:
         APP: web-inviter
+        # @zouriel/ui is a private GitHub Packages dependency (needs read:packages scope).
+        NODE_AUTH_TOKEN: ${NODE_AUTH_TOKEN:?NODE_AUTH_TOKEN is required (GitHub token with read:packages scope)}
     container_name: invites-blog-web-inviter
     restart: unless-stopped
     networks: [proxy]
@@ -131,6 +133,7 @@ services:
       context: ../invites-blog-frontend
       args:
         APP: web-invitee
+        NODE_AUTH_TOKEN: ${NODE_AUTH_TOKEN:?NODE_AUTH_TOKEN is required (GitHub token with read:packages scope)}
     container_name: invites-blog-web-invitee
     restart: unless-stopped
     networks: [proxy]
