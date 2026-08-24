@@ -59,7 +59,7 @@ services:
       # the api reports smsAvailable=false and the OTP channel gate rejects Sms requests.
       # SenderId must be <=11 alphanumeric GSM chars — no dots.
       Sms__MsgOwl__ApiKey: ${MSGOWL_API_KEY:-}
-      Sms__MsgOwl__SenderId: ${MSGOWL_SENDER_ID:-InvitesBlog}
+      Sms__MsgOwl__SenderId: ${MSGOWL_SENDER_ID:-Invitesblog}
       # Viber delivery (Infobip) — leave INFOBIP_API_KEY empty to keep the channel log-only (no real sends).
       Infobip__BaseUrl: ${INFOBIP_BASE_URL:-}
       Infobip__ApiKey: ${INFOBIP_API_KEY:-}
