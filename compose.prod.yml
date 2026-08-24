@@ -51,8 +51,8 @@ services:
       # Email — set EMAIL_PROVIDER=Resend + RESEND_* in .env to go live; defaults to Console (logs only).
       Email__Provider: ${EMAIL_PROVIDER:-Console}
       Email__ApiKey: ${RESEND_API_KEY:-}
-      Email__From_Invites: ${EMAIL_FROM_INVITES:-invites.blog <invites@mail.invites.blog>}
-      Email__From_System: ${EMAIL_FROM_SYSTEM:-invites.blog <no-reply@mail.invites.blog>}
+      Email__From_Invites: ${EMAIL_FROM_INVITES:-invites.blog <invites@invites.blog>}
+      Email__From_System: ${EMAIL_FROM_SYSTEM:-invites.blog <no-reply@invites.blog>}
       Email__WebhookSecret: ${RESEND_WEBHOOK_SECRET:-}
       Otp__Channels: ${OTP_CHANNELS:-Email}
       # Viber delivery (Infobip) — leave INFOBIP_API_KEY empty to keep the channel log-only (no real sends).
