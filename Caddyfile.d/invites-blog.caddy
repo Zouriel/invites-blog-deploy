@@ -32,6 +32,11 @@ me.invites.blog {
 	handle /r/* {
 		reverse_proxy invites-blog-api:8080
 	}
+	# The cross-host handoff: the account app mints a one-hop admission, this host redeems it into
+	# a cookie. Without this the path falls through to the SPA, which answers 200 to anything.
+	handle /h/* {
+		reverse_proxy invites-blog-api:8080
+	}
 	handle_path /assets/* {
 		rewrite * /invites-assets{uri}
 		reverse_proxy invites-blog-minio:9000
