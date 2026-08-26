@@ -10,26 +10,25 @@
 # the route lives here once and every host imports it, making the MinIO -> R2 cutover a one-line
 # change instead of four identical ones.
 #
-# CURRENT: MinIO on this box. /assets/{key} -> bucket object invites-assets/{key}.
+# LIVE since 2026-08-27: Cloudflare R2, via the bucket's custom domain.
 (assets) {
 	handle_path /assets/* {
-		rewrite * /invites-assets{uri}
-		reverse_proxy invites-blog-minio:9000
+		reverse_proxy https://assets.invites.blog {
+			header_up Host assets.invites.blog
+		}
 	}
 }
 
-# CUTOVER to Cloudflare R2 (FUTURE-PLANS section 1) — DO NOT APPLY BEFORE THE MIRROR.
-# Replace the body of (assets) above with:
+# ROLLBACK to MinIO — swap the body above back to:
 #
 #   handle_path /assets/* {
-#       reverse_proxy https://assets.invites.blog {
-#           header_up Host assets.invites.blog
-#       }
+#       rewrite * /invites-assets{uri}
+#       reverse_proxy invites-blog-minio:9000
 #   }
 #
-# ORDER MATTERS: campaign assets exist only in MinIO until `mc mirror` has copied them, so flipping
-# first 404s every photo on every already-sent invitation while templates keep rendering (they are
-# republished on each boot) — which presents as "the images broke", not "the storage is empty".
+# and set STORAGE_* in .env back to the MinIO values. The MinIO container and its volume are kept
+# mounted for exactly this. Anything uploaded since the cutover lives only in R2, so a rollback needs
+# a mirror back the other way first — R2 -> MinIO — or those assets 404.
 #
 # assets.invites.blog is the bucket's custom domain: public and CDN-fronted. NOT the S3 API endpoint
 # from the .env — that one requires a signature on every request, which Caddy cannot produce, and
