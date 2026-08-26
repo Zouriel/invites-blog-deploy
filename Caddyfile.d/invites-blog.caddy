@@ -3,14 +3,47 @@
 # Each site proxies /api/* to the API and /assets/* to MinIO object storage (same-origin, no CORS),
 # and everything else to the SPA. /assets/{key} maps to the MinIO bucket object invites-assets/{key}.
 
-invites.blog {
-	handle /api/* {
-		reverse_proxy invites-blog-api:8080
-	}
+# --- Object storage: the ONE place /assets/* is defined ---------------------------------------
+#
+# Four hosts serve /assets/*, and they must all point at the same backend. A half-migrated proxy
+# means some invitations load their photos and some don't, which is a miserable thing to debug — so
+# the route lives here once and every host imports it, making the MinIO -> R2 cutover a one-line
+# change instead of four identical ones.
+#
+# CURRENT: MinIO on this box. /assets/{key} -> bucket object invites-assets/{key}.
+(assets) {
 	handle_path /assets/* {
 		rewrite * /invites-assets{uri}
 		reverse_proxy invites-blog-minio:9000
 	}
+}
+
+# CUTOVER to Cloudflare R2 (FUTURE-PLANS section 1) — DO NOT APPLY BEFORE THE MIRROR.
+# Replace the body of (assets) above with:
+#
+#   handle_path /assets/* {
+#       reverse_proxy https://assets.invites.blog {
+#           header_up Host assets.invites.blog
+#       }
+#   }
+#
+# ORDER MATTERS: campaign assets exist only in MinIO until `mc mirror` has copied them, so flipping
+# first 404s every photo on every already-sent invitation while templates keep rendering (they are
+# republished on each boot) — which presents as "the images broke", not "the storage is empty".
+#
+# assets.invites.blog is the bucket's custom domain: public and CDN-fronted. NOT the S3 API endpoint
+# from the .env — that one requires a signature on every request, which Caddy cannot produce, and
+# pointing a CNAME at it earns Cloudflare error 1014.
+#
+# The `rewrite` goes with MinIO: /invites-assets is a MinIO bucket-path artefact, not part of the
+# key. Cache-Control needs no rule here — it is set on each object at upload (StorageCache), which
+# is exactly what makes it survive this move.
+
+invites.blog {
+	handle /api/* {
+		reverse_proxy invites-blog-api:8080
+	}
+	import assets
 	handle {
 		reverse_proxy invites-blog-web-inviter:80
 	}
@@ -37,10 +70,7 @@ me.invites.blog {
 	handle /h/* {
 		reverse_proxy invites-blog-api:8080
 	}
-	handle_path /assets/* {
-		rewrite * /invites-assets{uri}
-		reverse_proxy invites-blog-minio:9000
-	}
+	import assets
 	handle {
 		reverse_proxy invites-blog-web-invitee:80
 	}
@@ -51,10 +81,7 @@ invites.164.68.102.231.sslip.io {
 	handle /api/* {
 		reverse_proxy invites-blog-api:8080
 	}
-	handle_path /assets/* {
-		rewrite * /invites-assets{uri}
-		reverse_proxy invites-blog-minio:9000
-	}
+	import assets
 	handle {
 		reverse_proxy invites-blog-web-inviter:80
 	}
@@ -64,10 +91,7 @@ me-invites.164.68.102.231.sslip.io {
 	handle /api/* {
 		reverse_proxy invites-blog-api:8080
 	}
-	handle_path /assets/* {
-		rewrite * /invites-assets{uri}
-		reverse_proxy invites-blog-minio:9000
-	}
+	import assets
 	handle {
 		reverse_proxy invites-blog-web-invitee:80
 	}
