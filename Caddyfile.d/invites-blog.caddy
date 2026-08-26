@@ -20,6 +20,18 @@ me.invites.blog {
 	handle /api/* {
 		reverse_proxy invites-blog-api:8080
 	}
+	# The server-rendered guest path. /i/{token} admits (token + IP trust, OTP from an unrecognised
+	# network) and hands out an HttpOnly cookie; /r/{renderId} is the invitation itself — one
+	# pre-filled top-level document, no iframe, served under a CSP sandbox that gives it an opaque
+	# origin. Everything else on this host still goes to the Angular app, so /inbox, /login,
+	# /e/{campaignId} and /invites/{id} are untouched. To roll back, delete these two blocks and
+	# reload: /i/* falls straight back to the Angular invitee app.
+	handle /i/* {
+		reverse_proxy invites-blog-api:8080
+	}
+	handle /r/* {
+		reverse_proxy invites-blog-api:8080
+	}
 	handle_path /assets/* {
 		rewrite * /invites-assets{uri}
 		reverse_proxy invites-blog-minio:9000
