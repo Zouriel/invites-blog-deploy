@@ -12,6 +12,21 @@
 #
 # LIVE since 2026-08-27: Cloudflare R2, via the bucket's custom domain.
 (assets) {
+	# Designs a CUSTOMER uploaded are NOT served to browsers. Anyone can upload one, nothing reviews
+	# it, and everything under /assets/* is proxied onto the app's own origin as text/html with no
+	# CSP — where the session token sits in localStorage. A document reachable here would therefore
+	# be unreviewed markup running with a session in reach.
+	#
+	# The renderer does not need this route: it reads the document server-side from object storage
+	# by key and serves it inline, sandboxed, under default-src 'none'. So refusing it costs the
+	# product nothing and closes the whole class. The design's IMAGES are inert and live under
+	# /assets/campaigns/*, which is served normally.
+	#
+	# Keep this ABOVE the general handler — Caddy takes the most specific matcher, but the ordering
+	# is what makes the intent obvious to whoever reads this next.
+	handle /assets/imported/* {
+		respond 404
+	}
 	handle_path /assets/* {
 		reverse_proxy https://assets.invites.blog {
 			header_up Host assets.invites.blog
