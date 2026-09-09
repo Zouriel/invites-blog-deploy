@@ -79,6 +79,14 @@ me.invites.blog {
 	handle /r/* {
 		reverse_proxy invites-blog-api:8080
 	}
+	# The OPEN LINK: one short address anybody may follow, for a customer who brought their own
+	# artwork and has no guest list. Admits on possession of the code alone and redirects into
+	# /r/{renderId} like every other door. This block is load-bearing — without it /o/* falls
+	# through to the Angular invitee app, which answers 200 to anything, so the link would look
+	# like it worked and render an empty shell.
+	handle /o/* {
+		reverse_proxy invites-blog-api:8080
+	}
 	# The cross-host handoff: the account app mints a one-hop admission, this host redeems it into
 	# a cookie. Without this the path falls through to the SPA, which answers 200 to anything.
 	handle /h/* {
