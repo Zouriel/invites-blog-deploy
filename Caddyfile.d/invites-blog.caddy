@@ -27,6 +27,19 @@
 	handle /assets/imported/* {
 		respond 404
 	}
+	# What people UPLOAD (event photos and videos under buckets/, and campaign images such as covers
+	# under campaigns/) is served from the app's own origin. The upload path now refuses SVG, but
+	# anything stored before that (or a file whose bytes lie about their type) must still never run
+	# as a document here. nosniff stops a browser second-guessing the stored type; the sandbox CSP
+	# means a file opened directly gets an opaque origin with no scripts. An <img> or <video> on a
+	# page is unaffected: a CSP on an image response only applies when it is the top-level document.
+	# Template packages (templates/*) are NOT covered: designs need their scripts, and they run in
+	# sandboxed frames of their own.
+	@usermedia path /assets/buckets/* /assets/campaigns/*
+	header @usermedia {
+		X-Content-Type-Options nosniff
+		Content-Security-Policy "default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'; sandbox"
+	}
 	handle_path /assets/* {
 		reverse_proxy https://assets.invites.blog {
 			header_up Host assets.invites.blog
