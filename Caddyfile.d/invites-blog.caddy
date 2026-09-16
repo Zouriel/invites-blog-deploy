@@ -40,6 +40,12 @@
 		X-Content-Type-Options nosniff
 		Content-Security-Policy "default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'; sandbox"
 	}
+	# The template designer's self-hosted fonts. An invitation renders on an OPAQUE origin (the CSP
+	# sandbox on /r/*, and sandboxed preview frames in the app), and a browser fetches fonts in CORS
+	# mode — so without this header every font request from an invitation is refused, even though it
+	# is the same host. Fonts are public files; allowing any origin exposes nothing.
+	@fonts path /assets/fonts/*
+	header @fonts Access-Control-Allow-Origin "*"
 	handle_path /assets/* {
 		reverse_proxy https://assets.invites.blog {
 			header_up Host assets.invites.blog
