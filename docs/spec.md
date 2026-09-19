@@ -1,5 +1,11 @@
 # invites.blog — Product & Engineering Specification
 
+> **Superseded in parts (2026-09-19).** The pricing, payment, refund and retention sections here
+> describe the original pay-to-send model ($5 for 50 invitations, designer discount, "no accounts").
+> The current plans are Free, Party pass, Wedding pass and Keep your photos per event, plus Studio and
+> Venue for professionals, priced in MVR. The authority is `PlanCatalog` in the backend
+> (`InvitesBlog.Application/Plans/Plans.cs`) and the backend's `FUTURE-PLANS.md`.
+
 **Version:** 2.0
 **Prepared for:** invites.blog
 **Primary stack:** Angular 22 + ASP.NET Core / .NET 10
