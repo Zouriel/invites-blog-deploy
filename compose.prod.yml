@@ -79,6 +79,12 @@ services:
       OAuth__Google__ClientId: ${OAUTH_GOOGLE_CLIENT_ID:-}
       OAuth__Microsoft__ClientId: ${OAUTH_MICROSOFT_CLIENT_ID:-}
       OAuth__Microsoft__Tenant: ${OAUTH_MICROSOFT_TENANT:-common}
+      # Designer art library: optional accounts. Without them Openverse runs on its small anonymous
+      # quota and FreeSVG is listed as unavailable.
+      ArtLibrary__Openverse__ClientId: ${OPENVERSE_CLIENT_ID:-}
+      ArtLibrary__Openverse__ClientSecret: ${OPENVERSE_CLIENT_SECRET:-}
+      ArtLibrary__FreeSvg__Email: ${FREESVG_EMAIL:-}
+      ArtLibrary__FreeSvg__Password: ${FREESVG_PASSWORD:-}
     volumes:
       - invites-assets-data:/app/wwwroot/assets
     depends_on:
