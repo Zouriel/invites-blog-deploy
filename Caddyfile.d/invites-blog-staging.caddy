@@ -1,0 +1,73 @@
+# invites.blog STAGING routes (compose.staging.yml). A separate file from invites-blog.caddy so staging
+# can be added, changed or removed without touching production's routes.
+# Copy into /opt/stacks/proxy/Caddyfile.d/, then:
+#   docker exec caddy caddy validate --config /etc/caddy/Caddyfile
+#   docker exec caddy caddy reload --config /etc/caddy/Caddyfile
+
+# Staging is never for search engines or the public: every response says noindex, and robots.txt
+# disallows everything.
+(staging_common) {
+	header X-Robots-Tag "noindex, nofollow"
+	handle /robots.txt {
+		respond "User-agent: *
+Disallow: /
+" 200
+	}
+}
+
+# /assets/* from staging's OWN MinIO bucket (never production's R2). Same rules as production's
+# (assets) snippet: customer-uploaded designs are not served, uploads can't run as documents, fonts
+# are readable cross-origin.
+(staging_assets) {
+	handle /assets/imported/* {
+		respond 404
+	}
+	@usermedia path /assets/buckets/* /assets/campaigns/*
+	header @usermedia {
+		X-Content-Type-Options nosniff
+		Content-Security-Policy "default-src 'none'; img-src 'self' data:; media-src 'self'; style-src 'unsafe-inline'; sandbox"
+	}
+	@fonts path /assets/fonts/*
+	header @fonts Access-Control-Allow-Origin "*"
+	handle_path /assets/* {
+		rewrite * /invites-staging-assets{uri}
+		reverse_proxy invites-blog-staging-minio:9000
+	}
+}
+
+staging.invites.blog {
+	import staging_common
+	handle /api/* {
+		reverse_proxy invites-blog-staging-api:8080
+	}
+	import staging_assets
+	handle {
+		reverse_proxy invites-blog-staging-web-inviter:80
+	}
+}
+
+mestaging.invites.blog {
+	import staging_common
+	handle /api/* {
+		reverse_proxy invites-blog-staging-api:8080
+	}
+	# The server-rendered guest paths, as on me.invites.blog: the admission (/i), the invitation (/r),
+	# the open link (/o) and the cross-host handoff (/h). Without them these fall through to the SPA,
+	# which answers 200 to anything.
+	handle /i/* {
+		reverse_proxy invites-blog-staging-api:8080
+	}
+	handle /r/* {
+		reverse_proxy invites-blog-staging-api:8080
+	}
+	handle /o/* {
+		reverse_proxy invites-blog-staging-api:8080
+	}
+	handle /h/* {
+		reverse_proxy invites-blog-staging-api:8080
+	}
+	import staging_assets
+	handle {
+		reverse_proxy invites-blog-staging-web-invitee:80
+	}
+}
