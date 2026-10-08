@@ -54,7 +54,13 @@ services:
       Jwt__SigningKey: ${JWT_SIGNING_KEY:?JWT_SIGNING_KEY is required}
       Admin__Email: ${ADMIN_EMAIL:-admin@invites.blog}
       Admin__Password: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
-      Payments__Provider: Fake
+      # Payments — off until PAYMENTS_ENABLED=true. Go live with Bank of Maldives by setting in .env:
+      # PAYMENTS_PROVIDER=Bml, BML_API_KEY (the app's PRIVATE key from the BML merchant dashboard), and
+      # BML_BASE_URL=https://api.merchants.bankofmaldives.com.mv for production (UAT is the default).
+      Payments__Enabled: ${PAYMENTS_ENABLED:-false}
+      Payments__Provider: ${PAYMENTS_PROVIDER:-Fake}
+      Payments__Bml__BaseUrl: ${BML_BASE_URL:-https://api.uat.merchants.bankofmaldives.com.mv}
+      Payments__Bml__ApiKey: ${BML_API_KEY:-}
       Payments__WebhookSecret: ${PAYMENTS_WEBHOOK_SECRET:-fake-webhook-secret}
       # Email — set EMAIL_PROVIDER=Resend + RESEND_* in .env to go live; defaults to Console (logs only).
       Email__Provider: ${EMAIL_PROVIDER:-Console}

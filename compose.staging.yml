@@ -1,0 +1,141 @@
+# invites.blog STAGING stack: staging.invites.blog (account app) and mestaging.invites.blog (guests).
+#
+# A separate copy of the product for testing payments with Bank of Maldives' UAT gateway before they go
+# live. It shares NOTHING stateful with production: its own Postgres, its own MinIO bucket, its own
+# JWT key and its own container names (all prefixed invites-blog-staging-). Production's storage is
+# Cloudflare R2, and the API re-publishes template packages to storage on every start, so pointing
+# staging at production's bucket would overwrite live files: never do that.
+#
+# Run from /opt/apps/staging/invites-blog-deploy:
+#   docker compose -p invites-blog-staging -f compose.staging.yml --env-file .env.staging up -d --build
+# Routes: Caddyfile.d/invites-blog-staging.caddy (copy to /opt/stacks/proxy/Caddyfile.d/ and reload).
+name: invites-blog-staging
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: invites-blog-staging-postgres
+    environment:
+      POSTGRES_DB: invites_blog_staging
+      POSTGRES_USER: invites
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    volumes:
+      - invites-staging-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U invites -d invites_blog_staging"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    networks: [staging-internal]
+
+  api:
+    build:
+      context: ../invites-blog-backend
+      dockerfile: InvitesBlog.Api/Dockerfile
+    container_name: invites-blog-staging-api
+    environment:
+      # Production mode on purpose: no developer pages (the fake checkout), real error handling.
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Postgres: Host=invites-blog-staging-postgres;Port=5432;Database=invites_blog_staging;Username=invites;Password=${POSTGRES_PASSWORD}
+      Storage__Provider: Minio
+      Storage__Endpoint: http://invites-blog-staging-minio:9000
+      Storage__Bucket: invites-staging-assets
+      Storage__AccessKey: ${MINIO_ROOT_USER:?}
+      Storage__SecretKey: ${MINIO_ROOT_PASSWORD:?}
+      Storage__Region: ""
+      Urls__AssetsBase: /assets
+      Urls__InviterBase: https://staging.invites.blog
+      Urls__InviteeBase: https://mestaging.invites.blog
+      Urls__ApiBase: https://staging.invites.blog
+      Jwt__Issuer: staging.invites.blog
+      Jwt__Audience: staging.invites.blog
+      Jwt__SigningKey: ${JWT_SIGNING_KEY:?}
+      Admin__Email: ${ADMIN_EMAIL}
+      Admin__Password: ${ADMIN_PASSWORD}
+      # Bank of Maldives UAT. The UAT merchant account takes only US dollars, so prices (in rufiyaa)
+      # are charged in dollars at the price book's rate; production charges rufiyaa.
+      Payments__Enabled: "true"
+      Payments__Provider: Bml
+      Payments__Bml__BaseUrl: https://api.uat.merchants.bankofmaldives.com.mv
+      Payments__Bml__ApiKey: ${BML_API_KEY:?}
+      Payments__ChargeCurrency: USD
+      Email__Provider: ${EMAIL_PROVIDER}
+      Email__ApiKey: ${RESEND_API_KEY}
+      Email__From_Invites: ${EMAIL_FROM_INVITES}
+      Email__From_System: ${EMAIL_FROM_SYSTEM}
+      Email__SubjectPrefix: "[staging]"
+      # Email only: no SMS spend from staging.
+      Otp__Channels: Email
+    depends_on:
+      postgres:
+        condition: service_healthy
+      invites-blog-staging-minio-init:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    networks: [staging-internal, proxy]
+
+  # Named with the full prefix: Compose puts the service name on the shared `proxy` network as an
+  # alias, and it must not collide with production's invites-blog-minio.
+  invites-blog-staging-minio:
+    image: minio/minio:latest
+    container_name: invites-blog-staging-minio
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?}
+    volumes:
+      - invites-staging-minio-data:/data
+    restart: unless-stopped
+    networks: [staging-internal, proxy]
+
+  invites-blog-staging-minio-init:
+    image: minio/mc:latest
+    container_name: invites-blog-staging-minio-init
+    depends_on:
+      invites-blog-staging-minio:
+        condition: service_started
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    entrypoint: >
+      /bin/sh -c "
+      until mc alias set local http://invites-blog-staging-minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD; do sleep 2; done;
+      mc mb --ignore-existing local/invites-staging-assets;
+      mc anonymous set download local/invites-staging-assets;
+      echo 'staging bucket ready';
+      "
+    restart: "no"
+    networks: [staging-internal]
+
+  web-inviter:
+    build:
+      context: ../invites-blog-frontend
+      args:
+        APP: web-inviter
+        CONFIGURATION: staging
+        NODE_AUTH_TOKEN: ${NODE_AUTH_TOKEN:?}
+    container_name: invites-blog-staging-web-inviter
+    restart: unless-stopped
+    networks: [proxy]
+
+  web-invitee:
+    build:
+      context: ../invites-blog-frontend
+      args:
+        APP: web-invitee
+        CONFIGURATION: staging
+        NODE_AUTH_TOKEN: ${NODE_AUTH_TOKEN:?}
+    container_name: invites-blog-staging-web-invitee
+    restart: unless-stopped
+    networks: [proxy]
+
+volumes:
+  invites-staging-postgres-data:
+  invites-staging-minio-data:
+
+networks:
+  staging-internal:
+  proxy:
+    external: true
