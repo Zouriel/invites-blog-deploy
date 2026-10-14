@@ -149,8 +149,8 @@ services:
       context: ../invites-blog-frontend
       args:
         APP: web-inviter
-        # @zouriel/ui is a private GitHub Packages dependency (needs read:packages scope).
-        NODE_AUTH_TOKEN: ${NODE_AUTH_TOKEN:?NODE_AUTH_TOKEN is required (GitHub token with read:packages scope)}
+      # @zouriel/ui is a private GitHub Packages dependency: the token goes in as a build secret.
+      secrets: [npm_token]
     container_name: invites-blog-web-inviter
     restart: unless-stopped
     networks: [proxy]
@@ -160,7 +160,8 @@ services:
       context: ../invites-blog-frontend
       args:
         APP: web-invitee
-        NODE_AUTH_TOKEN: ${NODE_AUTH_TOKEN:?NODE_AUTH_TOKEN is required (GitHub token with read:packages scope)}
+      # @zouriel/ui is a private GitHub Packages dependency: the token goes in as a build secret.
+      secrets: [npm_token]
     container_name: invites-blog-web-invitee
     restart: unless-stopped
     networks: [proxy]
@@ -175,3 +176,9 @@ volumes:
   invites-postgres-data:
   invites-assets-data:
   invites-minio-data:
+
+secrets:
+  # NODE_AUTH_TOKEN from .env (GitHub token, read:packages). Only the web image builds use it, as a
+  # BuildKit secret: it is mounted for `npm ci` and never stored in an image layer or the build cache.
+  npm_token:
+    environment: NODE_AUTH_TOKEN
