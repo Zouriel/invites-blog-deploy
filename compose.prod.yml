@@ -44,6 +44,10 @@ services:
       # R2 accepts only "auto", and without a region the AWS SDK cannot sign against a custom
       # endpoint — the failure reads exactly like bad credentials. Empty is correct for MinIO.
       Storage__Region: ${STORAGE_REGION:-}
+      # Direct photo uploads: the private holding bucket, and the switch. Off unless "on" or albums listed.
+      Storage__IncomingBucket: ${STORAGE_INCOMING_BUCKET:-}
+      Uploads__Direct: ${UPLOADS_DIRECT:-off}
+      Uploads__DirectBuckets: ${UPLOADS_DIRECT_BUCKETS:-}
       # Relative asset base → template packageUrls resolve same-origin on whatever host serves the app.
       Urls__AssetsBase: /assets
       Urls__InviterBase: https://invites.blog
