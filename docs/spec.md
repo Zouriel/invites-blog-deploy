@@ -2,7 +2,7 @@
 
 > **Superseded in parts (2026-09-19).** The pricing, payment, refund and retention sections here
 > describe the original pay-to-send model ($5 for 50 invitations, designer discount, "no accounts").
-> The current plans are Free, Party pass, Wedding pass and Keep your photos per event, plus Studio and
+> The current plans are Free, Gold pass, Platinum pass and Keep your photos per event, plus Studio and
 > Venue for professionals, priced in MVR. The authority is `PlanCatalog` in the backend
 > (`InvitesBlog.Application/Plans/Plans.cs`) for limits, the admin price book (`IPriceBook`, Admin →
 > Prices) for prices, and the backend's `FUTURE-PLANS.md`.
