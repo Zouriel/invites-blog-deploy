@@ -66,6 +66,13 @@ services:
       Payments__Bml__BaseUrl: ${BML_BASE_URL:-https://api.uat.merchants.bankofmaldives.com.mv}
       Payments__Bml__ApiKey: ${BML_API_KEY:-}
       Payments__WebhookSecret: ${PAYMENTS_WEBHOOK_SECRET:-fake-webhook-secret}
+      # Google Play purchases in the app. Off until GOOGLE_PLAY_PACKAGE_NAME and the key are set: offers say
+      # nothing is available, purchases answer 503 and stay open at Google. The key is one line of JSON in .env.
+      GooglePlay__PackageName: ${GOOGLE_PLAY_PACKAGE_NAME:-}
+      GooglePlay__ServiceAccountJson: ${GOOGLE_PLAY_SERVICE_ACCOUNT_JSON:-}
+      GooglePlay__AllowTestPurchases: ${GOOGLE_PLAY_ALLOW_TEST_PURCHASES:-false}
+      GooglePlay__Notifications__Audience: ${GOOGLE_PLAY_NOTIFICATIONS_AUDIENCE:-}
+      GooglePlay__Notifications__ServiceAccountEmail: ${GOOGLE_PLAY_NOTIFICATIONS_EMAIL:-}
       # Email — set EMAIL_PROVIDER=Resend + RESEND_* in .env to go live; defaults to Console (logs only).
       Email__Provider: ${EMAIL_PROVIDER:-Console}
       Email__ApiKey: ${RESEND_API_KEY:-}
