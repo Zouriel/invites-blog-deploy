@@ -87,6 +87,7 @@ services:
       AppStore__PrivateKey: ${APP_STORE_PRIVATE_KEY:-}
       AppStore__AppAppleId: ${APP_STORE_APP_APPLE_ID:-}
       AppStore__AllowTestPurchases: ${APP_STORE_ALLOW_TEST_PURCHASES:-false}
+      AppStore__TestAccountIds: ${APP_STORE_TEST_ACCOUNT_IDS:-}
       Email__Provider: ${EMAIL_PROVIDER}
       Email__ApiKey: ${RESEND_API_KEY}
       Email__From_Invites: ${EMAIL_FROM_INVITES}

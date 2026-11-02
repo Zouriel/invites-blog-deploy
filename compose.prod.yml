@@ -92,6 +92,7 @@ services:
       AppStore__PrivateKey: ${APP_STORE_PRIVATE_KEY:-}
       AppStore__AppAppleId: ${APP_STORE_APP_APPLE_ID:-}
       AppStore__AllowTestPurchases: ${APP_STORE_ALLOW_TEST_PURCHASES:-false}
+      AppStore__TestAccountIds: ${APP_STORE_TEST_ACCOUNT_IDS:-}
       # Email — set EMAIL_PROVIDER=Resend + RESEND_* in .env to go live; defaults to Console (logs only).
       Email__Provider: ${EMAIL_PROVIDER:-Console}
       Email__ApiKey: ${RESEND_API_KEY:-}
