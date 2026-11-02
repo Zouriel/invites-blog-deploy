@@ -68,6 +68,16 @@ services:
       GooglePlay__AllowTestPurchases: ${GOOGLE_PLAY_ALLOW_TEST_PURCHASES:-false}
       GooglePlay__Notifications__Audience: ${GOOGLE_PLAY_NOTIFICATIONS_AUDIENCE:-}
       GooglePlay__Notifications__ServiceAccountEmail: ${GOOGLE_PLAY_NOTIFICATIONS_EMAIL:-}
+      # Push to iPhones straight through Apple (APNs). Off until APNS_KEY_ID, APNS_TEAM_ID and APNS_PRIVATE_KEY
+      # are set in .env (the .p8 contents on one line, newlines written as \n). The sandbox key is only for
+      # builds run from Xcode. Android push (FCM) stays off unless PUSH_ENABLED=true.
+      Push__Enabled: ${PUSH_ENABLED:-false}
+      Push__Apns__KeyId: ${APNS_KEY_ID:-}
+      Push__Apns__TeamId: ${APNS_TEAM_ID:-}
+      Push__Apns__PrivateKey: ${APNS_PRIVATE_KEY:-}
+      Push__Apns__SandboxKeyId: ${APNS_SANDBOX_KEY_ID:-}
+      Push__Apns__SandboxPrivateKey: ${APNS_SANDBOX_PRIVATE_KEY:-}
+      Push__Apns__Topic: ${APNS_TOPIC:-blog.invites.app}
       Email__Provider: ${EMAIL_PROVIDER}
       Email__ApiKey: ${RESEND_API_KEY}
       Email__From_Invites: ${EMAIL_FROM_INVITES}
