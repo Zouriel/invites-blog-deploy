@@ -108,6 +108,13 @@ services:
       OAuth__Google__AdditionalClientIds: ${OAUTH_GOOGLE_ADDITIONAL_CLIENT_IDS:-884331186526-i7g0uafokak1v238lup4e8cegtmbrb83.apps.googleusercontent.com}
       OAuth__Microsoft__ClientId: ${OAUTH_MICROSOFT_CLIENT_ID:-}
       OAuth__Microsoft__Tenant: ${OAUTH_MICROSOFT_TENANT:-common}
+      # Sign in with Apple, iPhone app only (the bundle id is the token's audience; not a secret).
+      # Token revocation on account deletion (App Store 5.1.1(v)) stays off until a Sign in with
+      # Apple key is in .env as APPLE_SIGNIN_KEY_ID + APPLE_SIGNIN_PRIVATE_KEY (.p8, \n-joined).
+      OAuth__Apple__ClientId: ${OAUTH_APPLE_CLIENT_ID:-blog.invites.app}
+      OAuth__Apple__TeamId: ${APPLE_SIGNIN_TEAM_ID:-85C88LNU7M}
+      OAuth__Apple__KeyId: ${APPLE_SIGNIN_KEY_ID:-}
+      OAuth__Apple__PrivateKey: ${APPLE_SIGNIN_PRIVATE_KEY:-}
       # Designer art library: optional accounts. Without them Openverse runs on its small anonymous
       # quota and FreeSVG is listed as unavailable.
       ArtLibrary__Openverse__ClientId: ${OPENVERSE_CLIENT_ID:-}
