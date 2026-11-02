@@ -78,6 +78,15 @@ services:
       Push__Apns__SandboxKeyId: ${APNS_SANDBOX_KEY_ID:-}
       Push__Apns__SandboxPrivateKey: ${APNS_SANDBOX_PRIVATE_KEY:-}
       Push__Apns__Topic: ${APNS_TOPIC:-blog.invites.app}
+      # App Store purchases in the iPhone app. Off until APP_STORE_BUNDLE_ID, the issuer, key id and key are set:
+      # offers say nothing is available and purchases answer 503 (StoreKit keeps them for the app to send again).
+      # The In-App Purchase key (.p8) is one line in .env with \n for its line breaks.
+      AppStore__BundleId: ${APP_STORE_BUNDLE_ID:-}
+      AppStore__IssuerId: ${APP_STORE_ISSUER_ID:-}
+      AppStore__KeyId: ${APP_STORE_KEY_ID:-}
+      AppStore__PrivateKey: ${APP_STORE_PRIVATE_KEY:-}
+      AppStore__AppAppleId: ${APP_STORE_APP_APPLE_ID:-}
+      AppStore__AllowTestPurchases: ${APP_STORE_ALLOW_TEST_PURCHASES:-false}
       Email__Provider: ${EMAIL_PROVIDER}
       Email__ApiKey: ${RESEND_API_KEY}
       Email__From_Invites: ${EMAIL_FROM_INVITES}
