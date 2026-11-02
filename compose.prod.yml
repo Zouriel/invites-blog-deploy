@@ -57,6 +57,9 @@ services:
       Jwt__Audience: invites.blog
       Jwt__SigningKey: ${JWT_SIGNING_KEY:?JWT_SIGNING_KEY is required}
       Admin__Email: ${ADMIN_EMAIL:-admin@invites.blog}
+      # Where reports of posts, comments, photos, people and templates are emailed (guideline 1.2).
+      # Set in .env; without it reports go to Admin__Email.
+      Moderation__ReportEmail: ${MODERATION_REPORT_EMAIL:-}
       Admin__Password: ${ADMIN_PASSWORD:?ADMIN_PASSWORD is required}
       # Payments — off until PAYMENTS_ENABLED=true. Go live with Bank of Maldives by setting in .env:
       # PAYMENTS_PROVIDER=Bml, BML_API_KEY (the app's PRIVATE key from the BML merchant dashboard), and
