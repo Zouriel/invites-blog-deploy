@@ -1,2 +1,5 @@
 .env
 *.log
+
+# Secret files mounted into containers (Firebase service account etc.)
+secrets/
