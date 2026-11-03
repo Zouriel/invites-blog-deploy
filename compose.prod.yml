@@ -131,6 +131,13 @@ services:
       OAuth__Apple__TeamId: ${APPLE_SIGNIN_TEAM_ID:-85C88LNU7M}
       OAuth__Apple__KeyId: ${APPLE_SIGNIN_KEY_ID:-}
       OAuth__Apple__PrivateKey: ${APPLE_SIGNIN_PRIVATE_KEY:-}
+      # Sign in with Apple on the website: Services ID blog.invites.web, return URL
+      # https://invites.blog/auth/apple/callback (registered on the Services ID; Caddy routes that one path
+      # to the API). OFF until APPLE_SIGNIN_WEB_ENABLED=true: while off the website shows no Apple button and
+      # the web endpoints refuse. The same Sign in with Apple key exchanges/revokes web tokens too.
+      OAuth__Apple__WebEnabled: ${APPLE_SIGNIN_WEB_ENABLED:-false}
+      OAuth__Apple__WebClientId: ${OAUTH_APPLE_WEB_CLIENT_ID:-blog.invites.web}
+      OAuth__Apple__WebRedirectUri: ${OAUTH_APPLE_WEB_REDIRECT_URI:-https://invites.blog/auth/apple/callback}
       # Designer art library: optional accounts. Without them Openverse runs on its small anonymous
       # quota and FreeSVG is listed as unavailable.
       ArtLibrary__Openverse__ClientId: ${OPENVERSE_CLIENT_ID:-}
