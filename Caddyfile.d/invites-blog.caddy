@@ -76,6 +76,13 @@ invites.blog {
 	handle /api/* {
 		reverse_proxy invites-blog-api:8080
 	}
+	# Sign in with Apple's return URL (fixed on the Services ID blog.invites.web). Apple POSTs the result
+	# here (response_mode=form_post), which the static SPA can't receive, so this ONE exact path goes to the
+	# API; it checks the state and answers with a redirect back into the SPA. Without this block the POST
+	# falls through to nginx and the sign-in ends on an error page. Harmless while web sign-in is off.
+	handle /auth/apple/callback {
+		reverse_proxy invites-blog-api:8080
+	}
 	import assets
 	handle {
 		reverse_proxy invites-blog-web-inviter:80
