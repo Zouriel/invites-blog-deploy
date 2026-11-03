@@ -78,8 +78,11 @@ services:
       GooglePlay__Notifications__ServiceAccountEmail: ${GOOGLE_PLAY_NOTIFICATIONS_EMAIL:-}
       # Push to iPhones straight through Apple (APNs). Off until APNS_KEY_ID, APNS_TEAM_ID and APNS_PRIVATE_KEY
       # are set in .env (the .p8 contents on one line, newlines written as \n). The sandbox key is only for
-      # builds run from Xcode. Android push (FCM) stays off unless PUSH_ENABLED=true.
+      # builds run from Xcode. Android push (FCM) stays off unless PUSH_ENABLED=true; it also needs the Firebase
+      # Admin service-account file at FCM_SERVICE_ACCOUNT_FILE (a host path, e.g. ./secrets/firebase-adminsdk.json,
+      # never committed), mounted read-only below.
       Push__Enabled: ${PUSH_ENABLED:-false}
+      Push__ServiceAccountPath: /run/secrets/fcm-service-account.json
       Push__Apns__KeyId: ${APNS_KEY_ID:-}
       Push__Apns__TeamId: ${APNS_TEAM_ID:-}
       Push__Apns__PrivateKey: ${APNS_PRIVATE_KEY:-}
@@ -136,6 +139,8 @@ services:
       ArtLibrary__FreeSvg__Password: ${FREESVG_PASSWORD:-}
     volumes:
       - invites-assets-data:/app/wwwroot/assets
+      # Firebase Admin service account for Android push. /dev/null when unset, so nothing is created on the host.
+      - ${FCM_SERVICE_ACCOUNT_FILE:-/dev/null}:/run/secrets/fcm-service-account.json:ro
     depends_on:
       postgres:
         condition: service_healthy
