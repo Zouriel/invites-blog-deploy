@@ -23,7 +23,7 @@
 
 ## 1. Executive Summary
 
-`invites.blog` is a premium animated invitation platform where inviters create beautiful, role-aware, personalized digital invitations and send them through email, WhatsApp, Viber, Telegram, or direct phone-linked channels.
+`invites.blog` is a premium animated invitation platform where inviters create beautiful, role-aware, personalized digital invitations and send them through email (automatic) or personally from the host's own WhatsApp.
 
 The platform has two major experiences:
 
@@ -98,7 +98,7 @@ An invitee can open their link and see their personalized animated invite instan
 | Invitee | Recipient of an invitation |
 | Designer | An inviter who builds a custom template and may submit it to the gallery |
 | Admin | Platform operator managing templates, submissions, channels, payments, abuse, and analytics |
-| Delivery Provider | Email, WhatsApp, Viber, Telegram, SMS, or similar channel |
+| Delivery Provider | Email (automatic); WhatsApp opened by the host (manual) |
 | Payment Provider | Stripe, BML payment gateway, Bank of Maldives, Ooredoo Pay, or equivalent |
 
 ---
@@ -139,7 +139,7 @@ The root domain should feel like a magazine of invitation templates, not a dry S
    - "Design & share your own template → 50% off" teaser.
 
 7. **Delivery Channels**
-   - Email, WhatsApp, Viber, Telegram, direct link, phone-linked delivery.
+   - Email (automatic), WhatsApp from the host's phone (manual), direct link.
 
 8. **Footer**
    - Guide, Pricing, Privacy, Terms, Contact, Status.
@@ -406,7 +406,6 @@ Inviters always forget someone; support it natively from the campaign dashboard:
 | Direct link | 1 | Copy/share manually |
 | Telegram | 2 | Easier than WhatsApp if bot-based |
 | WhatsApp | 3 | Requires Business API / approved templates |
-| Viber | 3 | Requires bot/business setup |
 | SMS | 4 | Costly; used for OTP and fallback |
 
 ### 4.8.2 Delivery Message
@@ -438,7 +437,7 @@ public interface IInviteDeliveryProvider
 }
 ```
 
-Implementations: `EmailInviteDeliveryProvider`, `WhatsAppInviteDeliveryProvider`, `ViberInviteDeliveryProvider`, `TelegramInviteDeliveryProvider`, `SmsInviteDeliveryProvider`.
+Implementations: `EmailInviteDeliveryProvider`, `WhatsAppInviteDeliveryProvider`, `TelegramInviteDeliveryProvider`, `SmsInviteDeliveryProvider`.
 
 ---
 
@@ -1196,7 +1195,6 @@ Rules are JSON, evaluated server-side, never executable code:
 
 ```text
 If WhatsApp fails and email exists → send email.
-If Viber fails and phone exists → SMS fallback if enabled.
 If all fail → mark failed, show in campaign report, auto-credit capacity (§14.3).
 ```
 
@@ -1309,7 +1307,7 @@ Create/publish/unpublish platform templates, upload assets, define fields and ro
 ## 17.3 Post-MVP
 
 1. Template designer (Phase A) and community submissions + discount (Phase B).
-2. Telegram, WhatsApp, Viber delivery; SMS fallback.
+2. Telegram delivery; SMS fallback.
 3. WhatsApp/Telegram OTP.
 4. Inviter multi-campaign view (email OTP continuity).
 5. Custom domains, advanced analytics, AI template text suggestions, designer marketplace/revenue share.
@@ -1454,9 +1452,9 @@ INVITER_BASE_URL=https://invites.blog
 
 # 23. Risks and Mitigations
 
-## 23.1 WhatsApp/Viber Approval
+## 23.1 WhatsApp Approval
 Risk: business messaging requires approval, paid templates, compliance.
-Mitigation: launch with email + direct links; Telegram next; WhatsApp/Viber after approval.
+Mitigation: launch with email + direct links; Telegram next; automated WhatsApp only after Business API approval (until then hosts send personally via wa.me).
 
 ## 23.2 Excel Chaos
 Risk: malformed spreadsheets.
