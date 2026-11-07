@@ -74,6 +74,10 @@ services:
       # The template designer's AI assistant (Premium/Venue): the Anthropic API key, from the server .env.
       # Unset = the assistant says it isn't available. Model and monthly allowance have defaults.
       Assistant__ApiKey: ${ANTHROPIC_API_KEY:-}
+      # Opus for everyone; the owner's account(s) (comma-separated ids) get Fable and no monthly allowance.
+      Assistant__Model: ${ASSISTANT_MODEL:-claude-opus-5-5}
+      Assistant__OwnerModel: ${ASSISTANT_OWNER_MODEL:-claude-fable-5-1}
+      Assistant__OwnerUserIds: ${ASSISTANT_OWNER_USER_IDS:-}
       Payments__WebhookSecret: ${PAYMENTS_WEBHOOK_SECRET:-fake-webhook-secret}
       # Google Play purchases in the app. Off until GOOGLE_PLAY_PACKAGE_NAME and the key are set: offers say
       # nothing is available, purchases answer 503 and stay open at Google. The key is one line of JSON in .env.
