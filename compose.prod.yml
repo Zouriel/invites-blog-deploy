@@ -78,6 +78,12 @@ services:
       Assistant__Model: ${ASSISTANT_MODEL:-claude-opus-5-5}
       Assistant__OwnerModel: ${ASSISTANT_OWNER_MODEL:-claude-fable-5-1}
       Assistant__OwnerUserIds: ${ASSISTANT_OWNER_USER_IDS:-}
+      # Pixabay in the designer's art library. Owner-only (the same account ids) until Pixabay approves our
+      # use; then PIXABAY_PUBLIC=true shows it to everyone and PIXABAY_FULL_ACCESS=true brings originals/SVG.
+      ArtLibrary__Pixabay__ApiKey: ${PIXABAY_API_KEY:-}
+      ArtLibrary__Pixabay__AllowedUserIds: ${ASSISTANT_OWNER_USER_IDS:-}
+      ArtLibrary__Pixabay__Public: ${PIXABAY_PUBLIC:-false}
+      ArtLibrary__Pixabay__FullAccess: ${PIXABAY_FULL_ACCESS:-false}
       Payments__WebhookSecret: ${PAYMENTS_WEBHOOK_SECRET:-fake-webhook-secret}
       # Google Play purchases in the app. Off until GOOGLE_PLAY_PACKAGE_NAME and the key are set: offers say
       # nothing is available, purchases answer 503 and stay open at Google. The key is one line of JSON in .env.
