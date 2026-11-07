@@ -71,6 +71,9 @@ services:
       Payments__Provider: ${PAYMENTS_PROVIDER:-Fake}
       Payments__Bml__BaseUrl: ${BML_BASE_URL:-https://api.uat.merchants.bankofmaldives.com.mv}
       Payments__Bml__ApiKey: ${BML_API_KEY:-}
+      # The template designer's AI assistant (Premium/Venue): the Anthropic API key, from the server .env.
+      # Unset = the assistant says it isn't available. Model and monthly allowance have defaults.
+      Assistant__ApiKey: ${ANTHROPIC_API_KEY:-}
       Payments__WebhookSecret: ${PAYMENTS_WEBHOOK_SECRET:-fake-webhook-secret}
       # Google Play purchases in the app. Off until GOOGLE_PLAY_PACKAGE_NAME and the key are set: offers say
       # nothing is available, purchases answer 503 and stay open at Google. The key is one line of JSON in .env.
