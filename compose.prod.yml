@@ -84,6 +84,10 @@ services:
       ArtLibrary__Pixabay__AllowedUserIds: ${ASSISTANT_OWNER_USER_IDS:-}
       ArtLibrary__Pixabay__Public: ${PIXABAY_PUBLIC:-false}
       ArtLibrary__Pixabay__FullAccess: ${PIXABAY_FULL_ACCESS:-false}
+      # "Create with AI" pictures in the designer (Ideogram, prepaid). Unset = unavailable. Only accounts an admin
+      # allows (Admin > Designers) see it, each with AI_PICTURES_MONTHLY_LIMIT pictures a month.
+      AiPictures__ApiKey: ${IDEOGRAM_API_KEY:-}
+      AiPictures__MonthlyLimit: ${AI_PICTURES_MONTHLY_LIMIT:-50}
       Payments__WebhookSecret: ${PAYMENTS_WEBHOOK_SECRET:-fake-webhook-secret}
       # Google Play purchases in the app. Off until GOOGLE_PLAY_PACKAGE_NAME and the key are set: offers say
       # nothing is available, purchases answer 503 and stay open at Google. The key is one line of JSON in .env.
