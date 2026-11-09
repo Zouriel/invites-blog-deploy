@@ -163,6 +163,9 @@ services:
       - invites-assets-data:/app/wwwroot/assets
       # Firebase Admin service account for Android push. /dev/null when unset, so nothing is created on the host.
       - ${FCM_SERVICE_ACCOUNT_FILE:-/dev/null}:/run/secrets/fcm-service-account.json:ro
+      # "Remove background" in the designer: the BiRefNet model file (~224 MB, MIT), kept on the server rather than
+      # in the image. Without it the feature says it isn't available. See docs/BACKGROUND-REMOVAL.md.
+      - ${BG_MODELS_DIR:-/opt/apps/models}:/app/models:ro
     depends_on:
       postgres:
         condition: service_healthy
