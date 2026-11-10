@@ -159,12 +159,21 @@ services:
       ArtLibrary__Openverse__ClientSecret: ${OPENVERSE_CLIENT_SECRET:-}
       ArtLibrary__FreeSvg__Email: ${FREESVG_EMAIL:-}
       ArtLibrary__FreeSvg__Password: ${FREESVG_PASSWORD:-}
+      # Face grouping (albums the host switched it on for): models in /app/models, on the GPU, released a
+      # minute after the last photo. FACES_DEVICE=cpu if the GPU is ever unavailable. See docs/FACE-GROUPING.md.
+      Faces__Device: ${FACES_DEVICE:-auto}
+      Faces__IdleSeconds: ${FACES_IDLE_SECONDS:-60}
+      Faces__Index: ${FACES_INDEX:-on}
+    # The server's GPU (GTX 1050 Ti), through CDI (nvidia-ctk cdi generate). Used only by face grouping.
+    devices:
+      - nvidia.com/gpu=all
     volumes:
       - invites-assets-data:/app/wwwroot/assets
       # Firebase Admin service account for Android push. /dev/null when unset, so nothing is created on the host.
       - ${FCM_SERVICE_ACCOUNT_FILE:-/dev/null}:/run/secrets/fcm-service-account.json:ro
       # "Remove background" in the designer: the BiRefNet model file (~224 MB, MIT), kept on the server rather than
       # in the image. Without it the feature says it isn't available. See docs/BACKGROUND-REMOVAL.md.
+      # The face models (YuNet + SFace, ~38 MB) live in the same folder: docs/FACE-GROUPING.md.
       - ${BG_MODELS_DIR:-/opt/apps/models}:/app/models:ro
     depends_on:
       postgres:
