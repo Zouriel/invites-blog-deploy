@@ -124,7 +124,8 @@ Disallow: /
 	import assets
 	# No landing page in the app: it opens on the feed (signed out, the feed asks them to sign in).
 	handle / {
-		redir /feed 302
+		# "*" first: a lone path would be read as a matcher, and "302" as the target.
+		redir * /feed 302
 	}
 	handle {
 		reverse_proxy invites-blog-web-inviter:80
