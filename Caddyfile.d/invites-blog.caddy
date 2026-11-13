@@ -92,7 +92,7 @@ invites.blog {
 	# not signed out by it: app.invites.blog asks this host once for the sign-in it holds (/handoff).
 	# Must match the app's own list (invites-blog-frontend, shared/services/host-split.ts, isSitePath):
 	# everything that isn't a site page. Clicks inside the page never reach Caddy; the app redirects those.
-	@app_paths path /me /me/* /feed /feed/* /inbox /inbox/* /favourites /favourites/* /login /login/* /join /join/* /signup /signup/* /billing /billing/* /events/* /invitation/* /buckets/* /create/* /dashboard/* /design/* /designer /designer/* /template-designer /template-designer/* /my-templates /my-templates/* /studio /studio/* /admin /admin/* /templates
+	@app_paths path /me /me/* /feed /feed/* /inbox /inbox/* /favourites /favourites/* /login /login/* /join /join/* /signup /signup/* /billing /billing/* /events/* /invitation/* /buckets/* /create/* /dashboard/* /design/* /designer /designer/* /template-designer /template-designer/* /my-templates /my-templates/* /studio /studio/* /admin /admin/* /templates /portfolio /portfolio/*
 	handle @app_paths {
 		redir https://app.invites.blog{uri} 302
 	}
