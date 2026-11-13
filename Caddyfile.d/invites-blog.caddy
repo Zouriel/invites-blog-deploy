@@ -108,6 +108,11 @@ invites.blog {
 	handle /@* {
 		import ib_api_upstream
 	}
+	# The published portfolios, for search engines (robots.txt lists it beside the build's sitemap.xml). Made by
+	# the API because portfolios change between builds.
+	handle /sitemap-portfolios.xml {
+		import ib_api_upstream
+	}
 	import assets
 	handle {
 		reverse_proxy invites-blog-web-inviter:80
