@@ -3,6 +3,14 @@
 # Each site proxies /api/* to the API and /assets/* to MinIO object storage (same-origin, no CORS),
 # and everything else to the SPA. /assets/{key} maps to the MinIO bucket object invites-assets/{key}.
 
+# Behind the Cloudflare tunnel Caddy's peer is the cloudflared container, so the API would see that one
+# address for every visitor. Hand it the visitor from CF-Connecting-IP (only Cloudflare reaches Caddy).
+(ib_api_upstream) {
+	reverse_proxy invites-blog-api:8080 {
+		header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+	}
+}
+
 # --- Object storage: the ONE place /assets/* is defined ---------------------------------------
 #
 # Four hosts serve /assets/*, and they must all point at the same backend. A half-migrated proxy
@@ -72,16 +80,28 @@
 # key. Cache-Control needs no rule here — it is set on each object at upload (StorageCache), which
 # is exactly what makes it survive this move.
 
+# invites.blog is the PUBLIC site since 2026-11-13: landing, Plans, guides, policies, design pages, and the
+# QR cards' /q/ pages. The signed-in web app is app.invites.blog (below). The API stays here too, for the
+# shipped mobile apps and the BML webhook.
 invites.blog {
 	handle /api/* {
-		reverse_proxy invites-blog-api:8080
+		import ib_api_upstream
+	}
+	# A page load of a web-app address here goes to the same address on app.invites.blog, query included, so
+	# old links, bookmarks and emails keep working (302: the split may still be tuned). Signed-in people are
+	# not signed out by it: app.invites.blog asks this host once for the sign-in it holds (/handoff).
+	# Must match the app's own list (invites-blog-frontend, shared/services/host-split.ts, isSitePath):
+	# everything that isn't a site page. Clicks inside the page never reach Caddy; the app redirects those.
+	@app_paths path /me /me/* /feed /feed/* /inbox /inbox/* /favourites /favourites/* /login /login/* /join /join/* /signup /signup/* /billing /billing/* /events/* /invitation/* /buckets/* /create/* /dashboard/* /design/* /designer /designer/* /template-designer /template-designer/* /my-templates /my-templates/* /studio /studio/* /admin /admin/* /templates
+	handle @app_paths {
+		redir https://app.invites.blog{uri} 302
 	}
 	# Sign in with Apple's return URL (fixed on the Services ID blog.invites.web). Apple POSTs the result
 	# here (response_mode=form_post), which the static SPA can't receive, so this ONE exact path goes to the
 	# API; it checks the state and answers with a redirect back into the SPA. Without this block the POST
 	# falls through to nginx and the sign-in ends on an error page. Harmless while web sign-in is off.
 	handle /auth/apple/callback {
-		reverse_proxy invites-blog-api:8080
+		import ib_api_upstream
 	}
 	import assets
 	handle {
@@ -89,9 +109,31 @@ invites.blog {
 	}
 }
 
+# The signed-in web app (2026-11-13): the same web-inviter build as invites.blog, which decides by its host
+# what to show. Its own /api for same-origin calls; nothing here is for search engines.
+app.invites.blog {
+	header X-Robots-Tag "noindex, nofollow"
+	handle /robots.txt {
+		respond "User-agent: *
+Disallow: /
+" 200
+	}
+	handle /api/* {
+		import ib_api_upstream
+	}
+	import assets
+	# No landing page in the app: it opens on the feed (signed out, the feed asks them to sign in).
+	handle / {
+		redir /feed 302
+	}
+	handle {
+		reverse_proxy invites-blog-web-inviter:80
+	}
+}
+
 me.invites.blog {
 	handle /api/* {
-		reverse_proxy invites-blog-api:8080
+		import ib_api_upstream
 	}
 	# The server-rendered guest path. /i/{token} admits (token + IP trust, OTP from an unrecognised
 	# network) and hands out an HttpOnly cookie; /r/{renderId} is the invitation itself — one
@@ -100,10 +142,10 @@ me.invites.blog {
 	# /e/{campaignId} and /invites/{id} are untouched. To roll back, delete these two blocks and
 	# reload: /i/* falls straight back to the Angular invitee app.
 	handle /i/* {
-		reverse_proxy invites-blog-api:8080
+		import ib_api_upstream
 	}
 	handle /r/* {
-		reverse_proxy invites-blog-api:8080
+		import ib_api_upstream
 	}
 	# The OPEN LINK: one short address anybody may follow, for a customer who brought their own
 	# artwork and has no guest list. Admits on possession of the code alone and redirects into
@@ -111,12 +153,12 @@ me.invites.blog {
 	# through to the Angular invitee app, which answers 200 to anything, so the link would look
 	# like it worked and render an empty shell.
 	handle /o/* {
-		reverse_proxy invites-blog-api:8080
+		import ib_api_upstream
 	}
 	# The cross-host handoff: the account app mints a one-hop admission, this host redeems it into
 	# a cookie. Without this the path falls through to the SPA, which answers 200 to anything.
 	handle /h/* {
-		reverse_proxy invites-blog-api:8080
+		import ib_api_upstream
 	}
 	import assets
 	handle {
@@ -127,7 +169,7 @@ me.invites.blog {
 # --- Immediate-access fallback (works without any DNS change) ---
 invites.164.68.102.231.sslip.io {
 	handle /api/* {
-		reverse_proxy invites-blog-api:8080
+		import ib_api_upstream
 	}
 	import assets
 	handle {
@@ -137,7 +179,7 @@ invites.164.68.102.231.sslip.io {
 
 me-invites.164.68.102.231.sslip.io {
 	handle /api/* {
-		reverse_proxy invites-blog-api:8080
+		import ib_api_upstream
 	}
 	import assets
 	handle {
