@@ -50,7 +50,10 @@ services:
       Uploads__DirectBuckets: ${UPLOADS_DIRECT_BUCKETS:-}
       # Relative asset base → template packageUrls resolve same-origin on whatever host serves the app.
       Urls__AssetsBase: /assets
+      # The public site (landing, plans, policies, the QR cards' /q/ pages) and, since 2026-11-13, the
+      # signed-in web app on its own host: emailed links to app screens use AppBase.
       Urls__InviterBase: https://invites.blog
+      Urls__AppBase: https://app.invites.blog
       Urls__InviteeBase: https://me.invites.blog
       Urls__ApiBase: https://invites.blog
       Jwt__Issuer: invites.blog
