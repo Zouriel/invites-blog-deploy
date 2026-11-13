@@ -103,6 +103,11 @@ invites.blog {
 	handle /auth/apple/callback {
 		import ib_api_upstream
 	}
+	# Studio portfolios (docs/PORTFOLIO.md): invites.blog/@handle is rendered by the API, so link previews and
+	# search see the real page. Must stay on this host (shared links, printed cards).
+	handle /@* {
+		import ib_api_upstream
+	}
 	import assets
 	handle {
 		reverse_proxy invites-blog-web-inviter:80
@@ -120,6 +125,10 @@ Disallow: /
 	}
 	handle /api/* {
 		import ib_api_upstream
+	}
+	# A portfolio is a public page: it lives on invites.blog.
+	handle /@* {
+		redir * https://invites.blog{uri} 301
 	}
 	import assets
 	# No landing page in the app: it opens on the feed (signed out, the feed asks them to sign in).
